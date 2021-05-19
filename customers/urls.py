@@ -6,9 +6,9 @@ from core.views import *
 
 router = routers.DefaultRouter()
 router.register(r'customers', CustomerViewSet,basename='customer')
-router.register(r'professions', ProfessionViewSet)
-router.register(r'datasheet', DataSheetViewSet)
-router.register(r'document', DocumentViewSet)
+router.register(r'professions', ProfessionViewSet,basename='profession')
+router.register(r'datasheet', DataSheetViewSet,basename='datasheet')
+router.register(r'document', DocumentViewSet,basename='document')
 
 urlpatterns = [
     path('api/', include(router.urls)),

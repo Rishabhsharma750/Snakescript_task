@@ -12,7 +12,7 @@ class DataSheet(models.Model):
     historical_data=models.TextField()
 
     def __str__(self):
-        return self.description
+        return str(self.id)+'. '+self.description
 
 class Customer(models.Model):
     name=models.CharField(max_length=50)
