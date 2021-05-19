@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from rest_framework.decorators import action
-
 from .models import *
 from .serializers import *
 from rest_framework import viewsets
@@ -10,11 +9,19 @@ class CustomerViewSet(viewsets.ModelViewSet):
     serializer_class = CustomerSerializer
 
     def get_queryset(self):
-        active_customers=Customer.objects.all()
-        return active_customers
+        address = self.request.query_params.get('address',None)
+        if self.request.query_params.get('active') == 'False':
+            status = False
+        else:
+            status = True
+        if address:
+            customers=Customer.objects.filter(address__icontains=address,active=status)
+        else:
+            customers=Customer.objects.filter(active=status)
+        return customers
 
     def list(self, request, *args, **kwargs):
-        customers = Customer.objects.all()
+        customers = self.get_queryset()
         serializer= CustomerSerializer(customers,many=True)
         return Response(serializer.data)
 
@@ -80,11 +87,22 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def activate_all(self,request,**kwargs):
-        customer=Customer.objects.all()
+        customer=self.get_queryset()
         customer.update(active=True)
         serializer=CustomerSerializer(customer,many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['POST'])
+    def change_status(self,request,**kwargs):
+        if request.data['active']=='True':
+            status=True
+        else:
+            status=False
+        customer = self.get_queryset()
+        print(status)
+        customer.update(active=status)
+        serializer = CustomerSerializer(customer, many=True)
+        return Response(serializer.data)
 
 
 class ProfessionViewSet(viewsets.ModelViewSet):
