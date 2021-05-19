@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from rest_framework.decorators import action
+
 from .models import *
 from .serializers import *
 from rest_framework import viewsets
@@ -8,7 +10,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     serializer_class = CustomerSerializer
 
     def get_queryset(self):
-        active_customers=Customer.objects.filter(active=True)
+        active_customers=Customer.objects.all()
         return active_customers
 
     def list(self, request, *args, **kwargs):
@@ -29,7 +31,6 @@ class CustomerViewSet(viewsets.ModelViewSet):
         profession=Profession.objects.get(id=data['profession'])
         customer.professions.add(profession)
         customer.save()
-
         serializer=CustomerSerializer(customer)
         return Response(serializer.data)
 
@@ -45,8 +46,43 @@ class CustomerViewSet(viewsets.ModelViewSet):
             customer.professions.remove(p)
         customer.professions.add(profession)
         customer.save()
-
         serializer = CustomerSerializer(customer)
+        return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        customer=self.get_object()
+        customer.name=request.data.get('name',customer.name)
+        customer.address=request.data.get('address',customer.address)
+        customer.data_sheet_id=request.data.get('data_sheet',customer.data_sheet_id)
+        customer.save()
+        serializer=CustomerSerializer(customer)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        customer=self.get_object()
+        customer.delete()
+        return Response('Object removed')
+
+    @action(detail=True)
+    def deactivate(self,request,**kwargs):
+        customer=self.get_object()
+        customer.active=False
+        customer.save()
+        serializer = CustomerSerializer(customer)
+        return Response(serializer.data)
+
+    @action(detail=False)
+    def deactivate_all(self,request,**kwargs):
+        customer=Customer.objects.all()
+        customer.update(active=False)
+        serializer=CustomerSerializer(customer,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False)
+    def activate_all(self,request,**kwargs):
+        customer=Customer.objects.all()
+        customer.update(active=True)
+        serializer=CustomerSerializer(customer,many=True)
         return Response(serializer.data)
 
 
