@@ -16,7 +16,6 @@ class CustomerViewSet(viewsets.ModelViewSet):
     ordering =('id',)
     lookup_field = 'doc_num'
 
-
     def get_queryset(self):
         address = self.request.query_params.get('address',None)
         if self.request.query_params.get('active') == 'False':
