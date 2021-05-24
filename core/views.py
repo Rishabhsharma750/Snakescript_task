@@ -5,6 +5,8 @@ from .serializers import *
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter,OrderingFilter
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny,IsAuthenticatedOrReadOnly,IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 
 class CustomerViewSet(viewsets.ModelViewSet):
@@ -15,6 +17,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     ordering_fields = ['id', 'name','address']
     ordering =('id',)
     lookup_field = 'doc_num'
+    authentication_classes = [TokenAuthentication,]
 
     def get_queryset(self):
         address = self.request.query_params.get('address',None)
@@ -32,6 +35,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     #     customers = self.get_queryset()
     #     serializer= CustomerSerializer(customers,many=True)
     #     return Response(serializer.data)
+
 
     def retrieve(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -115,6 +119,8 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
 class ProfessionViewSet(viewsets.ModelViewSet):
     serializer_class = ProfessionSerializer
+    authentication_classes = [TokenAuthentication, ]
+    permission_classes = [IsAdminUser, ]
 
     def get_queryset(self):
         queryset = Profession.objects.all()
@@ -122,6 +128,7 @@ class ProfessionViewSet(viewsets.ModelViewSet):
 
 class DataSheetViewSet(viewsets.ModelViewSet):
     serializer_class = DataSheetSerializer
+    permission_classes = [AllowAny,]
 
     def get_queryset(self):
         queryset = DataSheet.objects.all()
@@ -129,6 +136,8 @@ class DataSheetViewSet(viewsets.ModelViewSet):
 
 class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
+    authentication_classes = [TokenAuthentication,]
+    permission_classes = [IsAuthenticatedOrReadOnly,]
 
     def get_queryset(self):
         queryset = Document.objects.all()

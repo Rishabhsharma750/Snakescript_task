@@ -16,6 +16,7 @@ class CustomerSerializer(serializers.ModelSerializer):
     data_Sheet=DataSheetSerializer()
     professions=ProfessionSerializer(many=True)
     document_set=serializers.StringRelatedField(many=True)
+
     class Meta:
         model = Customer
         fields = ['id','name', 'address', 'professions', 'data_Sheet',
