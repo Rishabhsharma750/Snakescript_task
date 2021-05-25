@@ -20,13 +20,13 @@ class CustomerViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication,]
 
     def get_queryset(self):
-        address = self.request.query_params.get('address',None)
+        name = self.request.query_params.get('name',None)
         if self.request.query_params.get('active') == 'False':
             status = False
         else:
             status = True
-        if address:
-            customers=Customer.objects.filter(address__icontains=address,active=status)
+        if name:
+            customers=Customer.objects.filter(name__icontains=name,active=status)
         else:
             customers=Customer.objects.filter(active=status)
         return customers
